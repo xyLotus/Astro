@@ -26,6 +26,10 @@ class TokenType:
     NAME    = 13 # [string_name] (alphanumerical)
     TAB     = 14 # '    '        (4 spaces)
     NEWLINE = 15 # \n
+    ASSING  = 16 # =
+
+    NONE    = 17 # placeholders
+
 
 class Token:
     """This class represents a single Token which can then be put into a list
