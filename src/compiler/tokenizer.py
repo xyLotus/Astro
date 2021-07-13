@@ -2,7 +2,7 @@
 class is stored. """
 
 from astro_file import AstroFile
-from astro_types import Token
+from astro_types import Token, TokenType
 
 __author__ = 'xyLotus'
 __version__ = '0.1.0' # sub-release [10% finished]
@@ -11,77 +11,51 @@ class Tokenizer:
     """ This class tokenizes the given files
     given in @member h_file and returns the tokens
     per line uncompressed and raw. """
-    
+
     def __init__(self, h_file: AstroFile):
         """ @member file = file to be tokenized,
         @member tokens, token list; used in @method tokenize. """
         self.h_file = h_file
         self.tokens = []
+        self.compressed_tokens = []
 
         with open(h_file.file_name, 'r') as f:
             self.content = f.read()
 
-        self._preset_tokens = [
-            'TOK_SYM',      # ANY Symbol
-            'TOK_SPACE',    # ' '
-            'TOK_FUNCINIT', # !
-            'TOK_COMMA',    # ,
-            'TOK_COLON',     # :
-            'TOK_LFBRACKET',
-            'TOK_RGBRACKET'
-        ]
-
     def output_tokens(self):
-        """ debug outputs tokens for better readability
-        accesses @member tokens, returns error if list is empty. """
-        if len(self.tokens) == 1 and len(self.tokens[0]) == 0:
-            print('[TOKENIZER] - ERROR - @member self.tokens is empty.')
-            exit(1)
-
+        """ Outputs tokens in human easy-to-read format
+        for debugging and readability purposes """
         for line in self.tokens:
-            for token in line:
-                if   token.token_id == 1: print('[TOK_SPACE]',     end=' ')
-                elif token.token_id == 2: print('[TOK_FUNCINIT]',  end=' ')
-                elif token.token_id == 3: print('[TOK_COMMA]',     end=' ')
-                elif token.token_id == 4: print('[TOK_COLON]',     end=' ')
-                elif token.token_id == 5: print('[TOK_LFBRACKET]', end=' ')
-                elif token.token_id == 6: print('[TOK_RGBRACKET]', end=' ')
-                else:                     print('[TOK_SYM]',       end=' ')
-            print()
-
-    def _construct_token(self, tok_id: int, tok_value: str):
-        tok = Token()
-        tok.token_id    = tok_id
-        tok.token_value = tok_value
-
-        return tok
+            print('__[NEWLINE]__')
+            for tok in line:
+                print(tok, end=' ')
 
     def tokenize(self):
-        """ Main method for tokenizing,
-        parses file with file handle @member h_file. """
-        # stores a new line of iteratively generated tokens
-        # each iteration, used for appending @member tokens
-        tokl_buf = []
+        """ Tokenizes given file by accessing file handle
+        @member h_file (AstroFile) and storing the tokens in @member tokens."""
+        line_buffer = []
 
-        # Iteratively assigning TokenIDs to file content
-        # for each line, used for appending @var tokl_buf
         for line in self.content.split('\n'):
-            for c in line:
-                if c == ' ':
-                    tokl_buf.append(self._construct_token(1, c))
-                elif c == '!':
-                    tokl_buf.append(self._construct_token(2, c))
-                elif c == ',':
-                    tokl_buf.append(self._construct_token(3, c))
-                elif c == ':':
-                    tokl_buf.append(self._construct_token(4, c))
-                elif c == '(':
-                    tokl_buf.append(self._construct_token(5, c))
-                elif c == ')':
-                    tokl_buf.append(self._construct_token(6, c))
+            line_buffer = []
+            for ch in line:
+                if ch == ' ':
+                    line_buffer.append(Token(TokenType.SPACE,  ch))
+                elif ch == '!':
+                    line_buffer.append(Token(TokenType.EXCL,   ch))
+                elif ch == '(':
+                    line_buffer.append(Token(TokenType.LPAREN, ch))
+                elif ch == ')':
+                    line_buffer.append(Token(TokenType.RPAREN, ch))
+                elif ch == ':':
+                    line_buffer.append(Token(TokenType.COLON,  ch))
+                elif ch == ',':
+                    line_buffer.append(Token(TokenType.COMMA,  ch))
                 else:
-                    tokl_buf.append(self._construct_token(0, c))
-            
-            self.tokens.append(tokl_buf)
-            tokl_buf = [] # reset buffer
-                
+                    line_buffer.append(Token(TokenType.SYMBOL, ch))
+            self.tokens.append(line_buffer)
+
+    def compress(self, token_id: int):
+        """ Compresses the tokens into sub-tokens which
+        are smaller, ready for compilation and syntaxlexing,
+        accesses @member self.compressed_tokens. """
+        pass

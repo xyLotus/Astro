@@ -5,6 +5,7 @@ in context to the Astro compilation progress.  """
 __author__ = 'xyLotus'
 __version__ = '0.0.5'
 
+
 class AstroFile:
     """ Class that represents a astro file
     it __repr__'s the given file's @member file_name
@@ -20,7 +21,7 @@ class AstroFile:
 
     def __repr__(self):
         if self.cleanup:
-            self._cleanup() 
+            self._cleanup()
         return self.content
 
     def _cleanup(self) -> None:
