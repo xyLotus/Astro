@@ -5,3 +5,7 @@
 # All headers must be checked before changing
 /src/compiler/avm.py    @bellrise
 /src/avm/include/**     @bellrise
+
+/src/compiler/tokenizer.py   @xyLotus
+/src/compiler/astro_types.py @xyLotus
+/src/compiler/astro_file.py  @xyLotus
