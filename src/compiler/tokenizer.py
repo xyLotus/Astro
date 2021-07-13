@@ -16,10 +16,9 @@ class Tokenizer:
         """ @member file = file to be tokenized,
         @member tokens, token list; used in @method tokenize. """
         self.h_file = h_file
+        self.is_compressed = False
         self.tokens = []
-
-        with open(h_file.file_name, 'r') as f:
-            self.content = f.read()
+        self.content = self.h_file.content
 
     def output_tokens(self):
         """ Outputs tokens in human easy-to-read format
@@ -29,9 +28,26 @@ class Tokenizer:
             for tok in line:
                 print(tok, end=' ')
 
+    def get_context(self):
+        """ Returns context in dict format providing
+        line, source and tokens. Should probably only
+        be called when tokens are compressed """
+        if not self.is_compressed:
+            print(f'[Tokenizer-Error]: Compress tokens with compress();')
+            exit(1)
+
+        context_list = []
+        for i, line in enumerate(self.tokens):
+            context = {}
+
+            context['line'] = i
+            context['source'] = self.content.split('\n')[i]
+            context['tokens'] = self.tokens[i]
+
     def tokenize(self):
         """ Tokenizes given file by accessing file handle
         @member h_file (AstroFile) and storing the tokens in @member tokens."""
+        self.is_compressed = True
         line_buffer = []
 
         for line in self.content.split('\n'):
