@@ -1,0 +1,7 @@
+# This is the codeowners list for the whole project. Some parts are owned by
+# different contributors, meaning they get notified when a pull request is
+# created.
+
+# All headers must be checked before changing
+/src/compiler/avm.py    @bellrise
+/src/avm/include/**     @bellrise
