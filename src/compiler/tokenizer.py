@@ -25,7 +25,7 @@ class Tokenizer:
         """ Outputs tokens in human easy-to-read format
         for debugging and readability purposes """
         for line in self.tokens:
-            print('__[NEWLINE]__')
+            print()
             for tok in line:
                 print(tok, end=' ')
 
@@ -56,7 +56,7 @@ class Tokenizer:
     def compress(self, token_id: int):
         """ Compresses the tokens into sub-tokens which
         are smaller, ready for compilation and syntaxlexing,
-        accesses @member self.compressed_tokens. """
+        overwriting @member self.compressed_tokens. """
         
         # compress token sets line by line
         toks = []
@@ -89,3 +89,5 @@ class Tokenizer:
             print()
             for tok in line:
                 print(tok, end = '')
+
+        self.tokens = toks

@@ -4,4 +4,3 @@ developing Astro. """
 
 __author__ = 'Lotus'
 __version__ = 'STASIS'
-
