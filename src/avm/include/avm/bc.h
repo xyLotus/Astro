@@ -35,7 +35,7 @@ struct __attribute__((packed)) bc_hdr
     uint    hdr_size;           /* sizeof bc_hdr + sizeof hdr_data */
     int     hdr_flags;          /* header flags */
     char    hdr_sys;            /* system */
-    char    hdr_endian;         /* file endianess */
+    char    hdr_endian;         /* file endianness */
     ushort  hdr_org_name;       /* original file name */
     ushort  hdr_mod_name;       /* module name */
     ushort  hdr_main_func;      /* main function name */
