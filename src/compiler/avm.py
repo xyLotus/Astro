@@ -14,6 +14,7 @@ specific fields.
 from _ctypes import sizeof as _sizeof
 from ctypes import c_uint16 as _ushort, c_char as _char, c_uint as _uint, \
         c_char_p as _char_ptr
+from abc import ABC, abstractmethod
 _ptr_size = _sizeof(_char_ptr)
 
 BC_VERSION  = 1
@@ -21,7 +22,7 @@ BC_MAGIC    = b'\x5aABC'
 __version__ = BC_VERSION
 
 
-class _bc_struct:
+class _bc_struct(ABC):
     """Private handler for the struct classes. """
 
     def __init__(self):
@@ -30,9 +31,10 @@ class _bc_struct:
         for key, typ in fields.items():
             self.__dict__[key] = typ()
 
-    def size(self):
+    @abstractmethod
+    def size(self) -> int:
         """Return the size of the object. """
-        raise NotImplementedError('size() should be implemented')
+        pass
 
 
 class bc_hdr(_bc_struct):
@@ -44,7 +46,6 @@ class bc_hdr(_bc_struct):
     hdr_magic: bytes        # magic bytes
     hdr_version: int        # version
     hdr_size: _uint         # sizeof bc_hdr + sizeof hdr_data
-    hdr_data: bytes         # data
     hdr_flags: int          # header flags
     hdr_sys: _char          # system
     hdr_endian: _char       # file endianness
@@ -53,24 +54,24 @@ class bc_hdr(_bc_struct):
     hdr_main_func: _ushort  # main function name
     hdr_data: bytes         # data
 
-    def size(self):
+    def size(self) -> int:
         """Return the size of the struct. """
         return 24 + len(self.hdr_data)
 
 
-class bc_ins:
+class bc_ins(_bc_struct):
     """Single instruction"""
 
     ins_type: _ushort       # type of instruction
     ins_len: _ushort        # payload length
     ins_payload: bytes      # payload
 
-    def size(self):
+    def size(self) -> int:
         """Return the size of the struct. """
         return 4 + len(self.ins_payload)
 
 
-class bc_sym:
+class bc_sym(_bc_struct):
     """Symbol, also known as a function. sym_ptr points to the start of the
     BCO_FUNCTION instruction. """
 
@@ -79,8 +80,7 @@ class bc_sym:
     sym_flags: _ushort      # flags
     sym_ptr: _char_ptr      # pointer to start of symbol
 
-    @staticmethod
-    def size():
+    def size(self) -> int:
         """Return the size of the struct. """
         return 8 + _ptr_size
 
