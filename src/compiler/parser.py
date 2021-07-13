@@ -133,6 +133,27 @@ class Parser:
         :param size: length of the squiggly
         :param sep: separator, default is space
         """
+        if self.error_callback:
+            self.error_callback(msg, ctx)
+            return
+        self._print_problem('Compilation error', ctx, *msg, at=at,
+                            size=size, sep=sep)
+        exit(1)
+
+    def warn(self, ctx: dict, *msg, at=0, size=0, sep=' '):
+        """Print a warning.
+        :param ctx: line context - index, filename and source
+        :param msg: any amount of data to print after that
+        :param at: index at where the error happened
+        :param size: length of the squiggly
+        :param sep: separator, default is space
+        """
+        self._print_problem('Compilation warning', ctx, *msg, at=at,
+                            size=size, sep=sep)
+
+    def _print_problem(self, title, ctx, *msg, at, size, sep):
+        """Print an error/warning from error() or warn(). """
+
         msg = sep.join([str(x) for x in msg])
         if not size:
             size = len(ctx['source'])
@@ -147,13 +168,11 @@ class Parser:
             at += offset
 
         print(
-            f'Compilation error in {self.filename}:\n',
+            f'{title} in {self.filename}:\n',
             f'{ctx["line"]:4} | {ctx["source"]}\n',
-            f' ' * 5, ' ' * at, '^' + '~' * (size - 1), '\n',
-            msg,
-            file=sys.stderr
+            ' ' * 7, ' ' * at, '^' + '~' * (size - 1), '\n',
+            msg, sep='', file=sys.stderr
         )
-        exit(1)
 
 
 if __name__ == '__main__':
