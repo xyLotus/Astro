@@ -90,7 +90,7 @@ class bc_sym(_bc_struct):
 BC_FALSE            = 0x00
 BC_TRUE             = 0x01
 
-# hdr_sys */
+# hdr_sys
 
 BC_SYS_UNKNOWN      = 0x00
 BC_SYS_LINUX        = 0x01
