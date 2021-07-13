@@ -1,6 +1,7 @@
 """ The main file is the entrypoint for execution of astro,
 the where all the dev intended execution order takes places. """
 
+from astro_types import TokenType
 from astro_file import AstroFile
 from tokenizer import Tokenizer
 
@@ -20,6 +21,7 @@ tokenizer = Tokenizer(
     h_file = file_handle
 )
 tokenizer.tokenize()
+tokenizer.compress(token_id = TokenType.SYM)
 
 # seperator
 print()

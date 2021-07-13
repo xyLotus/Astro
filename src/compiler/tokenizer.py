@@ -17,7 +17,6 @@ class Tokenizer:
         @member tokens, token list; used in @method tokenize. """
         self.h_file = h_file
         self.tokens = []
-        self.compressed_tokens = []
 
         with open(h_file.file_name, 'r') as f:
             self.content = f.read()
@@ -38,7 +37,7 @@ class Tokenizer:
         for line in self.content.split('\n'):
             line_buffer = []
             for ch in line:
-                if ch == ' ':
+                if   ch == ' ':
                     line_buffer.append(Token(TokenType.SPACE,  ch))
                 elif ch == '!':
                     line_buffer.append(Token(TokenType.EXCL,   ch))
@@ -51,11 +50,42 @@ class Tokenizer:
                 elif ch == ',':
                     line_buffer.append(Token(TokenType.COMMA,  ch))
                 else:
-                    line_buffer.append(Token(TokenType.SYMBOL, ch))
+                    line_buffer.append(Token(TokenType.SYM,    ch))
             self.tokens.append(line_buffer)
 
     def compress(self, token_id: int):
         """ Compresses the tokens into sub-tokens which
         are smaller, ready for compilation and syntaxlexing,
         accesses @member self.compressed_tokens. """
-        pass
+        
+        # compress token sets line by line
+        toks = []
+        for line in self.tokens:
+            value_buf = ""
+            line_buf = []
+
+            # line compression process
+            for i, tok in enumerate(line):
+                if tok.id != token_id:
+                    line_buf.append(tok)
+
+                if i != len(line)-1: # End Of Token Set!
+                    if tok.id == token_id and line[i+1].id == token_id:
+                        value_buf += tok.value
+                    elif tok.id == token_id and line[i+1].id != token_id:
+                        value_buf += tok.value
+
+                        line_buf.append(Token(id_ = 13, value = value_buf))
+                        value_buf = ""
+                elif tok.id == token_id:
+                    value_buf += tok.value
+                    
+                    line_buf.append(Token(id_ = 13, value = value_buf))
+                    value_buf = "" # clear buffer
+
+            toks.append(line_buf)
+
+        for line in toks:
+            print()
+            for tok in line:
+                print(tok, end = '')
