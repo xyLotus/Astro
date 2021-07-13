@@ -1,1 +1,7 @@
-__pychache__
+# IDE support
+.idea
+.vscode
+/compile_flags.txt
+
+# Python
+__pycache__
