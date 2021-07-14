@@ -48,3 +48,13 @@ class Token:
             if value == self.id:
                 str_token = name
         return f'<Token id={str_token} value=\'{self.value}\'>'
+    
+    def __repr__(self):
+        """Generate a string representation of the Token using some reflective
+        Python magic. """
+
+        str_token = '?'
+        for name, value in TokenType.__dict__.items():
+            if value == self.id:
+                str_token = name
+        return f'<Token id={str_token} value=\'{self.value}\'>'
