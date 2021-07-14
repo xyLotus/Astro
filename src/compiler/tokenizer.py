@@ -109,9 +109,4 @@ class Tokenizer:
 
             toks.append(line_buf)
 
-        for line in toks:
-            print()
-            for tok in line:
-                print(tok, end = '')
-
         self.tokens = toks
