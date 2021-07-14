@@ -15,8 +15,8 @@ class Tokenizer:
     def __init__(self, h_file: AstroFile):
         """ @member file = file to be tokenized,
         @member tokens, token list; used in @method tokenize. """
-        self.h_file = h_file
         self.is_compressed = False
+        self.h_file = h_file
         self.tokens = []
         self.content = self.h_file.content
 
@@ -31,7 +31,7 @@ class Tokenizer:
     def get_context(self):
         """ Returns context in dict format providing
         line, source and tokens. Should probably only
-        be called when tokens are compressed """
+        be called when tokens are compressed. """
         if not self.is_compressed:
             print(f'[Tokenizer-Error]: Compress tokens with compress();')
             exit(1)
@@ -43,11 +43,15 @@ class Tokenizer:
             context['line'] = i
             context['source'] = self.content.split('\n')[i]
             context['tokens'] = self.tokens[i]
+            
+            context_list.append(context)
+        
+        return context_list
 
-    def tokenize(self):
+    def tokenize(self) -> list:
         """ Tokenizes given file by accessing file handle
         @member h_file (AstroFile) and storing the tokens in @member tokens."""
-        self.is_compressed = True
+        toks = []
         line_buffer = []
 
         for line in self.content.split('\n'):
@@ -67,16 +71,20 @@ class Tokenizer:
                     line_buffer.append(Token(TokenType.COMMA,  ch))
                 else:
                     line_buffer.append(Token(TokenType.SYM,    ch))
-            self.tokens.append(line_buffer)
+            toks.append(line_buffer)
+        
+        return toks
 
     def compress(self, token_id: int):
         """ Compresses the tokens into sub-tokens which
         are smaller, ready for compilation and syntaxlexing,
         overwriting @member self.compressed_tokens. """
-        
+        self.is_compressed = True
+        tokens = self.tokenize()
+
         # compress token sets line by line
         toks = []
-        for line in self.tokens:
+        for line in tokens:
             value_buf = ""
             line_buf = []
 
