@@ -1,13 +1,11 @@
 """
 The entrypoint. Calls functions to compile the program.
 """
-from astro_types import TokenType
 from astro_file import AstroFile
 from tokenizer import Tokenizer
 import argparse
 
 __author__  = 'xyLotus, bellrise'
-__version__ = '0.0.5'
 
 
 def main():
@@ -24,7 +22,9 @@ def main():
     file = AstroFile(args.src, cleanup=False)
     tokenizer = Tokenizer(file)
     tokenizer.tokenize()
-    tokenizer.compress(TokenType.SYM)
+
+    import pprint
+    pprint.pp(tokenizer.get_context())
 
 
 if __name__ == '__main__':

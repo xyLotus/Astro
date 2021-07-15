@@ -7,28 +7,28 @@ __version__ = '0.1'
 class TokenType:
     """ Basically an enum of all token types. """
     
-    SPACE   = 0  # ' '      (1 space) 
-    SYM     = 1  # [symbol] (alphanumerical)
-    EXCL    = 2  # !
+    SPACE   = 0   # ' '      (1 space)
+    SYM     = 1   # [symbol] (alphanumerical)
+    EXCL    = 2   # !
 
-    LPAREN  = 3  # (
-    RPAREN  = 4  # )
-    LBRACK  = 5  # [
-    RBRACK  = 6  # ]
-    LBRACE  = 7  # {
-    RBRACE  = 8  # }
-    LCHEV   = 9  # <
-    RCHEV   = 10 # >
+    LPAREN  = 3   # (
+    RPAREN  = 4   # )
+    LBRACK  = 5   # [
+    RBRACK  = 6   # ]
+    LBRACE  = 7   # {
+    RBRACE  = 8   # }
+    LCHEV   = 9   # <
+    RCHEV   = 10  # >
 
-    COMMA   = 11 # ,
-    COLON   = 12 # :
+    COMMA   = 11  # ,
+    COLON   = 12  # :
 
-    NAME    = 13 # [string_name] (alphanumerical)
-    TAB     = 14 # '    '        (4 spaces)
-    NEWLINE = 15 # \n
-    ASSING  = 16 # =
+    NAME    = 13  # [string_name] (alphanumerical)
+    TAB     = 14  # '    '        (4 spaces)
+    NEWLINE = 15  # \n
+    ASSIGN  = 16  # =
 
-    NONE    = 17 # placeholders
+    NONE    = 17  # placeholders
 
 
 class Token:
@@ -53,8 +53,4 @@ class Token:
         """Generate a string representation of the Token using some reflective
         Python magic. """
 
-        str_token = '?'
-        for name, value in TokenType.__dict__.items():
-            if value == self.id:
-                str_token = name
-        return f'<Token id={str_token} value=\'{self.value}\'>'
+        return self.__str__()

@@ -10,6 +10,9 @@ import re
 __author__  = 'bellrise'
 __version__ = '0.1'
 
+if sys.version_info.minor < 5:
+    raise RuntimeError('requires Python >= 3.5')
+
 
 class Parser:
     """The parser takes a list of tokens that are the result from the
@@ -19,17 +22,17 @@ class Parser:
     where the invalid code is located, and exit the program if the code
     cannot compile properly. """
 
-    # List of all possible checks the parser can run on the code
     possible_checks = []
 
-    # Statement signatures used in match()
     signatures = (
         # ! name ( ... ) :
-        (avm.BCO_FUNCTION, (TokenType.EXCL, TokenType.NAME, TokenType.LPAREN,
-                            ..., TokenType.RPAREN, TokenType.COLON)),
+        (avm.BCO_FUNCTION, (
+            TokenType.EXCL, TokenType.NAME, TokenType.LPAREN, ...,
+            TokenType.RPAREN, TokenType.COLON)),
         # name ( ... )
-        (avm.BCO_CALL, (TokenType.NAME, TokenType.LPAREN, ...,
-                        TokenType.RPAREN)),
+        (avm.BCO_CALL, (
+            TokenType.NAME, TokenType.LPAREN, ...,
+            TokenType.RPAREN)),
         # name ...
         (avm.BCO_BASECALL, (TokenType.NAME, ...)),
         # name = ...
@@ -162,7 +165,8 @@ class Parser:
             return
 
         # We want to skip whitespace for the squiggly
-        if match := re.match(r'^\s*', ctx['source']):
+        match = re.match(r'^\s*', ctx['source'])
+        if match:
             offset = match.span()[1]
             size -= offset
             at += offset

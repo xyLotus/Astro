@@ -13,7 +13,8 @@ class AstroFile:
 
     def __init__(self, file_name: str, cleanup: bool):
         self.file_name = str(file_name)
-        self.cleanup = cleanup # wether to cleanup file in __repr__ or not
+        # Whether to _cleanup the file in __repr__
+        self.cleanup = cleanup
         self.content = ""
 
         with open(file_name, 'r') as f:
@@ -25,6 +26,6 @@ class AstroFile:
         return self.content
 
     def _cleanup(self) -> None:
-        """ removes unessecary characters with RegEx from source file
+        """ Removes unnecessary characters with regex from source file
         for tokenization (ready-up), overwrites @member content """
-        pass # TODO => Complete function with RegEx (remove comments)
+        pass  # TODO => Complete function with RegEx (remove comments)
