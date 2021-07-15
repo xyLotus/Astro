@@ -11,9 +11,10 @@ file in any implementation of the compiler or interpreter, because the
 basic set of values will always be here along with some implementation
 specific fields.
 """
-from ctypes import c_char as char, c_char_p as char_ptr
 from _ctypes import sizeof as _sizeof
 from abc import ABC, abstractmethod
+from ctypes import c_char as char, c_char_p as char_ptr
+
 _ptr_size = _sizeof(char_ptr)
 
 BC_VERSION  = 1
@@ -25,14 +26,12 @@ class _bc_struct(ABC):
     """Private handler for the struct classes. """
 
     def __init__(self):
-        """The class constructor adds all defined symbols from the class. """
         fields = self.__class__.__dict__['__annotations__']
         for key, typ in fields.items():
             self.__dict__[key] = typ()
 
     @abstractmethod
     def size(self) -> int:
-        """Return the expected size of the struct. """
         pass
 
 
@@ -56,7 +55,6 @@ class bc_hdr(_bc_struct):
     hdr_off_func: int   # main function name
 
     def size(self) -> int:
-        """Return the expected size of the struct. """
         return 42
 
 
@@ -68,7 +66,6 @@ class bc_ins(_bc_struct):
     ins_payload: bytes  # payload
 
     def size(self) -> int:
-        """Return the expected size of the struct. """
         return 4 + len(self.ins_payload)
 
 
@@ -82,7 +79,6 @@ class bc_sym(_bc_struct):
     sym_ptr: char_ptr   # pointer to start of symbol
 
     def size(self) -> int:
-        """Return the expected size of the struct. """
         return 8 + _ptr_size
 
 
