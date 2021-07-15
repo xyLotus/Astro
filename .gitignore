@@ -9,3 +9,6 @@ __pycache__
 # Astro source code, but not the test sources
 /src/**/*.asx
 !/src/compiler/test_sources/**
+
+# Virtual machine stuff
+/src/avm/build
