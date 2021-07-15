@@ -73,12 +73,12 @@ class Tokenizer:
             toks.append(line_buffer)
 
         # Compress all required tokens
-        toks = self.compress(toks, TokenType.SYM, TokenType.NAME)
+        toks = self._compress(toks, TokenType.SYM, TokenType.NAME)
 
         self.tokens = toks
         return toks
 
-    def compress(self, tokens: list, from_: int, to_: int) -> list:
+    def _compress(self, tokens: list, from_: int, to_: int) -> list:
         """ Compresses the tokens into sub-tokens which
         are smaller, ready for compilation and syntax lexing,
         overwriting @member self.compressed_tokens. """
@@ -95,7 +95,7 @@ class Tokenizer:
                 if tok.id != from_:
                     line_buf.append(tok)
 
-                if i != len(line) - 1:  # End Of Token Set!
+                if i != len(line) - 1:  # End of Token Set!
                     if tok.id == from_ and line[i+1].id == from_:
                         value_buf += tok.value
                     elif tok.id == from_ and line[i+1].id != from_:

@@ -1,0 +1,4 @@
+! function_name(param1, param2):
+    ; Comment
+    out param1
+    x = 'string'

@@ -14,16 +14,17 @@ def main():
     """Collect command line arguments and call the functions. """
 
     parser = argparse.ArgumentParser(description='Compile Astro source code '
-                                     'into bytecode.')
+                                     'into bytecode.')  
     parser.add_argument('src', help='Path to source code')
-    parser.add_argument('--no-err', action='store_true', help='Do not exit '
-                        'after errors')
+    parser.add_argument('--noerr', action='store_true', help='Catches all errors'
+                        'at compilation runtime')
 
     args = parser.parse_args()
 
-    file = AstroFile(args.src)
-    tokenizer = Tokenizer(file)
+    file_obj = AstroFile(args.src)
+    tokenizer = Tokenizer(file_obj)
     tokenizer.tokenize()
+    print(tokenizer.tokens)
 
     from pprint import pp
     parsed = ac_parser.Parser(args.src, tokenizer.get_context())
