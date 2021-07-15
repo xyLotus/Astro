@@ -6,7 +6,7 @@ __version__ = '0.1'
 
 class TokenType:
     """ Basically an enum of all token types. """
-    
+
     SPACE   = 0   # ' '      (1 space)
     SYM     = 1   # [symbol] (alphanumerical)
     EXCL    = 2   # !
@@ -29,6 +29,17 @@ class TokenType:
     ASSIGN  = 16  # =
 
     NONE    = 17  # placeholders
+    QUOTE   = 18  # '
+    DBQUOTE = 19  # "
+
+    @staticmethod
+    def get(id_) -> str:
+        """Return the name of the token from the passed ID. Returns NONE by
+        default. """
+        for name, value in TokenType.__dict__.items():
+            if value == id_:
+                return name
+        return 'NONE'
 
 
 class Token:
@@ -43,12 +54,15 @@ class Token:
         """Generate a string representation of the Token using some reflective
         Python magic. """
 
-        str_token = '?'
-        for name, value in TokenType.__dict__.items():
-            if value == self.id:
-                str_token = name
+        str_token = TokenType.get(self.id)
         return f'<Token id={str_token} value=\'{self.value}\'>'
-    
+
+    def __mul__(self, other: int) -> list:
+        """Multiply the token n times. """
+        if not isinstance(other, int):
+            raise TypeError('cannot multiply token by non-int value')
+        return [self for _ in range(other)]
+
     def __repr__(self):
         """Generate a string representation of the Token using some reflective
         Python magic. """

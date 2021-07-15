@@ -3,6 +3,7 @@ The entrypoint. Calls functions to compile the program.
 """
 import argparse
 
+import ac_parser
 from astro_file import AstroFile
 from tokenizer import Tokenizer
 
@@ -24,8 +25,9 @@ def main():
     tokenizer = Tokenizer(file)
     tokenizer.tokenize()
 
-    import pprint
-    pprint.pp(tokenizer.get_context())
+    from pprint import pp
+    parsed = ac_parser.Parser(args.src, tokenizer.get_context())
+    pp(parsed.parse())
 
 
 if __name__ == '__main__':

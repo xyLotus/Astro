@@ -1,8 +1,8 @@
 """ The file where the definition of the Tokenizer
 class is stored. """
 
-from astro_types import Token, TokenType
 from astro_file import AstroFile
+from astro_types import Token, TokenType
 
 __author__  = 'xyLotus'
 __version__ = '0.1.0'   # sub-release [10% finished]
@@ -59,7 +59,10 @@ class Tokenizer:
             '(': TokenType.LPAREN,
             ')': TokenType.RPAREN,
             ':': TokenType.COLON,
-            ',': TokenType.COMMA
+            ',': TokenType.COMMA,
+            '\'': TokenType.QUOTE,
+            '"': TokenType.DBQUOTE,
+            '=': TokenType.ASSIGN,
         }
 
         for line in self.content.split('\n'):
