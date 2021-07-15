@@ -1,40 +1,31 @@
-""" The main file is the entrypoint for execution of astro,
-the where all the dev intended execution order takes places. """
-
-# Local
+"""
+The entrypoint. Calls functions to compile the program.
+"""
 from astro_types import TokenType
 from astro_file import AstroFile
 from tokenizer import Tokenizer
+import argparse
 
-import argparse_config
-
-
-__author__ = 'xyLotus'
+__author__  = 'xyLotus, bellrise'
 __version__ = '0.0.5'
-__status__ = 'Work In Progess'
-
-# Command-line Argument Vector Handling
-argparse_config.init_parse()
-argv = argparse_config.get_argv()
-
-# NOTE Any argument handles (argv.arg_name)
-#      will be written below this comment
 
 
-# Main functionality post-argument parsing
-# seperator
-print()
+def main():
+    """Collect command line arguments and call the functions. """
 
-file_handle = AstroFile(
-    file_name="astro_code.txt", 
-    cleanup=False
-)
+    parser = argparse.ArgumentParser(description='Compile Astro source code '
+                                     'into bytecode.')
+    parser.add_argument('src', help='Path to source code')
+    parser.add_argument('--no-err', action='store_true', help='Do not exit '
+                        'after errors')
 
-tokenizer = Tokenizer(
-    h_file=file_handle
-)
-tokenizer.tokenize()
-tokenizer.compress(token_id = TokenType.SYM)
+    args = parser.parse_args()
 
-# seperator
-print()
+    file = AstroFile(args.src, cleanup=False)
+    tokenizer = Tokenizer(file)
+    tokenizer.tokenize()
+    tokenizer.compress(TokenType.SYM)
+
+
+if __name__ == '__main__':
+    main()

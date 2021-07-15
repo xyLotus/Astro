@@ -72,7 +72,6 @@ class Tokenizer:
                 else:
                     line_buffer.append(Token(TokenType.SYM,    ch))
             toks.append(line_buffer)
-        
         return toks
 
     def compress(self, token_id: int):
