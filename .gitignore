@@ -5,3 +5,7 @@
 
 # Python
 __pycache__
+
+# Astro source code, but not the test sources
+/src/**/*.asx
+!/src/compiler/test_sources/**

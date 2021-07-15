@@ -1,0 +1,14 @@
+! function_name(param1 ;; This is a comment inside a param;;, param2):
+    ; Comment
+    function_content
+
+    ;; This is a multiline comment ;;
+
+
+    ;;This is another
+    multia
+    as
+    d
+
+    d
+    sds comment;;

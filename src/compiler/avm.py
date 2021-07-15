@@ -12,10 +12,10 @@ basic set of values will always be here along with some implementation
 specific fields.
 """
 from _ctypes import sizeof as _sizeof
-from ctypes import c_uint16 as _ushort, c_char as _char, c_uint as _uint, \
-        c_char_p as _char_ptr
 from abc import ABC, abstractmethod
-_ptr_size = _sizeof(_char_ptr)
+from ctypes import c_char as char, c_char_p as char_ptr
+
+_ptr_size = _sizeof(char_ptr)
 
 BC_VERSION  = 1
 BC_MAGIC    = b'\x5aABC'
@@ -26,14 +26,12 @@ class _bc_struct(ABC):
     """Private handler for the struct classes. """
 
     def __init__(self):
-        """The class constructor adds all defined symbols from the class. """
         fields = self.__class__.__dict__['__annotations__']
         for key, typ in fields.items():
             self.__dict__[key] = typ()
 
     @abstractmethod
     def size(self) -> int:
-        """Return the size of the object. """
         pass
 
 
@@ -43,31 +41,31 @@ class bc_hdr(_bc_struct):
     strings with names are located after the header, in the exact order the
     lengths are provided in the header. """
 
-    hdr_magic: bytes        # magic bytes
-    hdr_version: int        # version
-    hdr_size: _uint         # sizeof bc_hdr + sizeof hdr_data
-    hdr_flags: int          # header flags
-    hdr_sys: _char          # system
-    hdr_endian: _char       # file endianness
-    hdr_org_name: _ushort   # original file name
-    hdr_mod_name: _ushort   # module name
-    hdr_main_func: _ushort  # main function name
-    hdr_data: bytes         # data
+    hdr_magic: bytes    # magic bytes [4]
+    hdr_version: int    # version
+    hdr_size: int       # sizeof bc_hdr + sizeof hdr_data
+    hdr_flags: int      # header flags
+    hdr_sys: char       # system
+    hdr_endian: char    # file endianness
+    hdr_off_data: int   # data segment
+    hdr_off_code: int   # code segment
+    hdr_off_mut: int    # mutable data segment
+    hdr_off_oname: int  # source name
+    hdr_off_mname: int  # module name
+    hdr_off_func: int   # main function name
 
     def size(self) -> int:
-        """Return the size of the struct. """
-        return 24 + len(self.hdr_data)
+        return 42
 
 
 class bc_ins(_bc_struct):
     """Single instruction"""
 
-    ins_type: _ushort       # type of instruction
-    ins_len: _ushort        # payload length
-    ins_payload: bytes      # payload
+    ins_type: int       # type of instruction
+    ins_len: int        # payload length
+    ins_payload: bytes  # payload
 
     def size(self) -> int:
-        """Return the size of the struct. """
         return 4 + len(self.ins_payload)
 
 
@@ -75,13 +73,12 @@ class bc_sym(_bc_struct):
     """Symbol, also known as a function. sym_ptr points to the start of the
     BCO_FUNCTION instruction. """
 
-    sym_pos: _uint          # location of symbol in file
-    sym_len: _ushort        # symbol length
-    sym_flags: _ushort      # flags
-    sym_ptr: _char_ptr      # pointer to start of symbol
+    sym_pos: int        # location of symbol in file
+    sym_len: int        # symbol length
+    sym_flags: int      # flags
+    sym_ptr: char_ptr   # pointer to start of symbol
 
     def size(self) -> int:
-        """Return the size of the struct. """
         return 8 + _ptr_size
 
 

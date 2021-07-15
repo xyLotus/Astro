@@ -1,8 +1,9 @@
-""" The file where the AstroFile class gets stored,
-which gets used as a file handle for basic operations
-in context to the Astro compilation progress.  """
+"""
+File wrapper for the tokenizer.
+"""
+import re
 
-__author__ = 'xyLotus'
+__author__  = 'xyLotus, bellrise'
 __version__ = '0.0.5'
 
 
@@ -11,20 +12,41 @@ class AstroFile:
     it __repr__'s the given file's @member file_name
     content and will probably be able to do various file operations. """
 
-    def __init__(self, file_name: str, cleanup: bool):
+    def __init__(self, file_name: str, cleanup: bool = True):
+        """Prepare the file for use.
+        :param file_name: path to the file
+        :param cleanup: remove comments from the file
+        """
         self.file_name = str(file_name)
-        self.cleanup = cleanup # wether to cleanup file in __repr__ or not
         self.content = ""
 
         with open(file_name, 'r') as f:
             self.content = f.read()
 
-    def __repr__(self):
-        if self.cleanup:
+        if cleanup:
             self._cleanup()
+
+    def __repr__(self):
         return self.content
 
     def _cleanup(self) -> None:
-        """ removes unessecary characters with RegEx from source file
-        for tokenization (ready-up), overwrites @member content """
-        pass # TODO => Complete function with RegEx (remove comments)
+        """Removes comments from the source file. """
+
+        content: str = self.content.replace('\r', '')
+
+        result = re.finditer(r'(;;[\n\w\s]*;;)+', content)
+        for match in result:
+            # The reason I'm not using .replace on a string here is because
+            # I would be cutting out every single instance which might come
+            # up in a later match.
+            spaces = ' ' * (match.span()[1] - match.span()[0])
+            content = content[:match.span()[0]] + spaces \
+                + content[match.span()[1]:]
+
+        lines = content.split('\n')
+        for index, line in enumerate(lines):
+            match = re.match(r'^[^;]*(?P<comment>;.*)$', line)
+            if match:
+                lines[index] = line.replace(match.group('comment'), '')
+
+        self.content = '\n'.join([s.rstrip() for s in lines])

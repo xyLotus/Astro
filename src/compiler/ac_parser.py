@@ -1,14 +1,18 @@
 """
 The parser.
 """
-from astro_types import TokenType
-from typing import List, Callable
-import sys
-import avm
 import re
+import sys
+from typing import List, Callable, Optional
+
+import avm
+from astro_types import TokenType, Token
 
 __author__  = 'bellrise'
 __version__ = '0.1'
+
+if sys.version_info.minor < 5:
+    raise RuntimeError('requires Python >= 3.5')
 
 
 class Parser:
@@ -19,21 +23,21 @@ class Parser:
     where the invalid code is located, and exit the program if the code
     cannot compile properly. """
 
-    # List of all possible checks the parser can run on the code
     possible_checks = []
 
-    # Statement signatures used in match()
     signatures = (
         # ! name ( ... ) :
-        (avm.BCO_FUNCTION, (TokenType.EXCL, TokenType.NAME, TokenType.LPAREN,
-                            ..., TokenType.RPAREN, TokenType.COLON)),
+        (avm.BCO_FUNCTION, (
+            TokenType.EXCL, TokenType.NAME, TokenType.LPAREN, ...,
+            TokenType.RPAREN, TokenType.COLON)),
         # name ( ... )
-        (avm.BCO_CALL, (TokenType.NAME, TokenType.LPAREN, ...,
-                        TokenType.RPAREN)),
+        (avm.BCO_CALL, (
+            TokenType.NAME, TokenType.LPAREN, ...,
+            TokenType.RPAREN)),
+        # name = ...
+        (avm.BCO_ASSIGN, (TokenType.NAME, TokenType.ASSIGN, ...)),
         # name ...
         (avm.BCO_BASECALL, (TokenType.NAME, ...)),
-        # name = ...
-        (avm.BCO_ASSIGN, (TokenType.NAME, TokenType.ASSIGN, ...))
     )
 
     def __init__(self, filename: str, tokens: List[dict], trust_me=False):
@@ -69,23 +73,43 @@ class Parser:
         if checks is ...:
             self.checks = self.possible_checks
 
+        self.calculate_indents()
+
         for token_ctx in self.tokens:
             tokens = token_ctx['tokens']
             result = self.match(tokens)
-            if not result:
+            if result is None:
                 self.error(token_ctx, 'invalid syntax')
+
+            for k, v in avm.__dict__.items():
+                if k.startswith('BCO_') and v == result:
+                    print(k)
+                    break
 
         return []
 
-    def match(self, tokens: List[TokenType]) -> int:
+    def match(self, tokens: List[Token]) -> Optional[int]:
         """Match a token list to a statement type, and then return that tuple
-        of the type and function to call to parse it.
+        of the type and function to call to parse it. We first fetch only the
+        token IDs and that are not spaces. Then iterate through the signatures
+        using similar to regex rules: if a ellipsis (...) is found in the
+        middle, it skips n tokens until it finds the next type in the signature.
+        If the ellipsis is at the end, it matches anything.
         :param tokens: list of token types
+        :return: token ID or None if not matched
         """
+        tokens = [tok.id for tok in tokens if tok.id is not TokenType.SPACE]
+        if not tokens:
+            return avm.BCO_NOP
+
         for _sig in self.signatures:
             # Check each signature for a matching one
             id_, sig = _sig
             tok_index = 0
+
+            if _sig[1][0] is ...:
+                raise SyntaxError('invalid signature: cannot start with any')
+
             for sig_index, element in enumerate(sig):
                 # If the element in the signature is an ellipsis, skip until it
                 # finds the next element in the token list or to the end if no
@@ -93,8 +117,10 @@ class Parser:
                 if element is ...:
                     if sig_index - 1 == len(sig):
                         return id_
+                    if sig_index + 1 >= len(sig):
+                        return id_
                     if sig[sig_index+1] is ...:
-                        raise SyntaxError('there cannot be 2 ellipsis in a sig')
+                        raise SyntaxError('invalid signature: 2 any fields')
 
                     pos = tokens[tok_index:].index(sig[sig_index+1])
                     if pos == -1:
@@ -116,7 +142,65 @@ class Parser:
             if tok_index == len(tokens):
                 return id_
 
-        return 0
+        return None
+
+    def calculate_indents(self):
+        """Count the indents for every token array in self.tokens, and add
+        a brand new field named 'indent' with the amount of indentations. The
+        chosen amount of indents is the first found amount. If real tabs (\t)
+        are used, they are counted as 4 spaces which is interchangeable with
+        4 actual spaces.
+        """
+        width = 0
+
+        # Replace tabs with 4 spaces
+        for index, tok in enumerate(self.tokens):
+            self.tokens[index]['tokens'] = [
+                Token(TokenType.SPACE, ' ') * 4 if t.id == TokenType.TAB
+                else t
+                for t in tok['tokens']
+            ]
+
+        for index, context in enumerate(self.tokens):
+            context['indent'] = 0
+            # We need to skip the first line because of index stuff down below
+            if not context['tokens'] or index == 0:
+                continue
+
+            if context['tokens'][0].id == TokenType.SPACE:
+                if not width:
+                    # If the tab size wasn't defined yet, count it
+                    width = self._count_continuous(context['source'], ' ')
+
+                # If the tab size isn't the same as the defined width, throw
+                # a nice little indentation error width complex math trying to
+                # guess your tab size.
+                tab = self._count_continuous(context['source'], ' ')
+                if tab % width != 0 or (tab - width > width):
+                    should_be = width
+                    if tab > width:
+                        previous = self.tokens[index-1].get('indent', 0)
+                        should_be = previous * width + width
+
+                    self.error(
+                        context, f'invalid indent of {tab}, should be {should_be}',
+                        size=tab, tab=False
+                    )
+
+                context['indent'] = tab // width
+
+    @staticmethod
+    def _count_continuous(string, char) -> int:
+        """Count the amount of continuous chars from the start of the string.
+        :param string: string to count on
+        :param char: single character to compare
+        """
+        counter = 0
+        for c in string:
+            if c is not char:
+                break
+            counter += 1
+        return counter
 
     def trap_errors(self, callback: Callable[[str, dict], None]):
         """Catch any errors that could close the parser, passing the error
@@ -125,35 +209,35 @@ class Parser:
         """
         self.error_callback = callback
 
-    def error(self, ctx: dict, *msg, at=0, size=0, sep=' '):
+    def error(self, ctx: dict, *msg, at=0, size=0, tab=True, sep=' '):
         """Print a compilation error and exit.
         :param ctx: line context - index, filename and source
         :param msg: any amount of data to print after that
         :param at: index at where the error happened
         :param size: length of the squiggly
+        :param tab: start the squiggly from the start of code (skip whitespace)
         :param sep: separator, default is space
         """
         if self.error_callback:
             self.error_callback(msg, ctx)
             return
         self._print_problem('Compilation error', ctx, *msg, at=at,
-                            size=size, sep=sep)
+                            size=size, tab=tab, sep=sep)
         exit(1)
 
-    def warn(self, ctx: dict, *msg, at=0, size=0, sep=' '):
+    def warn(self, ctx: dict, *msg, at=0, size=0, tab=True, sep=' '):
         """Print a warning.
         :param ctx: line context - index, filename and source
         :param msg: any amount of data to print after that
         :param at: index at where the error happened
         :param size: length of the squiggly
+        :param tab: start the squiggly from the start of code (skip whitespace)
         :param sep: separator, default is space
         """
         self._print_problem('Compilation warning', ctx, *msg, at=at,
-                            size=size, sep=sep)
+                            size=size, tab=tab, sep=sep)
 
-    def _print_problem(self, title, ctx, *msg, at, size, sep):
-        """Print an error/warning from error() or warn(). """
-
+    def _print_problem(self, title, ctx, *msg, at, size, tab, sep):
         msg = sep.join([str(x) for x in msg])
         if not size:
             size = len(ctx['source'])
@@ -161,8 +245,9 @@ class Parser:
             self.error_callback(msg, ctx)
             return
 
-        # We want to skip whitespace for the squiggly
-        if match := re.match(r'^\s*', ctx['source']):
+        # We want to skip whitespace for the squiggly but only if tab is True
+        match = re.match(r'^\s*', ctx['source'])
+        if tab and match:
             offset = match.span()[1]
             size -= offset
             at += offset
@@ -173,31 +258,3 @@ class Parser:
             ' ' * 7, ' ' * at, '^' + '~' * (size - 1), '\n',
             msg, sep='', file=sys.stderr
         )
-
-
-if __name__ == '__main__':
-    # This is a small piece of code for testing the general functionality
-    # of the parser, real unit tests will be written.
-    __parser = Parser('test.asx', [
-        {'line': 1, 'source': '! function(param, param2):', 'tokens': [
-            TokenType.EXCL, TokenType.NAME, TokenType.LPAREN, TokenType.NAME,
-            TokenType.COMMA, TokenType.NAME, TokenType.RPAREN, TokenType.COLON
-        ]},
-        {'line': 2, 'source': '    out param', 'tokens': [
-            TokenType.TAB, TokenType.NAME, TokenType.NAME
-        ]}
-    ])
-
-    if __parser.parse() != [
-        {
-            'type': avm.BCO_FUNCTION,
-            'name': 'function',
-            'params': ['param', 'param2'],
-            'code': [
-                {'type': avm.BCO_BASECALL, 'call': 'out', 'params': [
-                    {'type': 'var', 'name': 'param'}
-                ]}
-            ]
-        }
-    ]:
-        print('failed to parse')
