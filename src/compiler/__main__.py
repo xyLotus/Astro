@@ -1,9 +1,10 @@
 """
 The entrypoint. Calls functions to compile the program.
 """
+import argparse
+
 from astro_file import AstroFile
 from tokenizer import Tokenizer
-import argparse
 
 __author__  = 'xyLotus, bellrise'
 
@@ -19,7 +20,7 @@ def main():
 
     args = parser.parse_args()
 
-    file = AstroFile(args.src, cleanup=False)
+    file = AstroFile(args.src)
     tokenizer = Tokenizer(file)
     tokenizer.tokenize()
 
