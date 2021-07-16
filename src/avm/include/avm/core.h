@@ -15,8 +15,8 @@
 #include <stddef.h>
 
 
-#define AVM_VERSION     {0, 0, 1}
-#define AVM_COPYRIGHT   "avm 0.0.1 (Astro toolchain)\n" \
+#define AVM_VERSION     {0, 0, 2}
+#define AVM_COPYRIGHT   "avm 0.0.2 (Astro toolchain)\n" \
     "Copyright (C) 2021 bellrise\n\n" \
     "This project is licenced under the GNU Public Licence v3.0\n" \
     "which can be found at <https://gnu.org/licenses/gpl.html>"
@@ -25,7 +25,8 @@
 /* Result from the argument parser (args_parse function). */
 struct args
 {
-    char    *filename;
+    char    *arg_filename;
+    char    *arg_args;
 };
 
 /* Parse the given arguments (without the executable name) and create an

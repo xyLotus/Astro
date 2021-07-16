@@ -118,3 +118,4 @@ struct bc_source
 
 
 #endif /* AVM_BC_H_ */
+
