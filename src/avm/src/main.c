@@ -14,3 +14,4 @@ int main(int argc, char **argv)
 {
     struct args args = args_parse(--argc, ++argv);
 }
+

@@ -63,6 +63,7 @@ class bc_ins(_bc_struct):
 
     ins_type: int       # type of instruction
     ins_len: int        # payload length
+    ins_source: int     # pointer to source string
     ins_payload: bytes  # payload
 
     def size(self) -> int:
@@ -80,6 +81,18 @@ class bc_sym(_bc_struct):
 
     def size(self) -> int:
         return 8 + _ptr_size
+
+
+class bc_source(_bc_struct):
+    """Every instruction (with debug symbols) should point to a bc_source
+    structure somewhere in the data segment, which in turn provides information
+    about the line number and contents of a line from the orignal source code.
+    """
+    src_line: int       # line of the source
+    src_data: bytes     # the actual string
+
+    def size(self) -> int:
+        return 4 + len(self.src_data)
 
 
 # Universal values

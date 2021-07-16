@@ -15,6 +15,7 @@
 typedef unsigned char   _bc8;
 typedef unsigned short  _bc16;
 typedef unsigned int    _bc32;
+typedef unsigned int    _bc_ptr;
 
 #define BC_VERSION  1
 #define BC_MAGIC    "\x5aABC"
@@ -31,12 +32,12 @@ struct __attribute__((packed)) bc_hdr
     _bc32   hdr_flags;          /* header flags */
     _bc8    hdr_sys;            /* system */
     _bc8    hdr_endian;         /* file endianness */
-    _bc32   hdr_off_data;       /* data segment */
-    _bc32   hdr_off_code;       /* code segment */
-    _bc32   hdr_off_mut;        /* mutable data segment */
-    _bc32   hdr_off_oname;      /* source name */
-    _bc32   hdr_off_mname;      /* module name */
-    _bc32   hdr_off_func;       /* main function name */
+    _bc_ptr hdr_off_data;       /* data segment */
+    _bc_ptr hdr_off_code;       /* code segment */
+    _bc_ptr hdr_off_mut;        /* mutable data segment */
+    _bc_ptr hdr_off_oname;      /* source name */
+    _bc_ptr hdr_off_mname;      /* module name */
+    _bc_ptr hdr_off_func;       /* main function name */
 };
 
 /* Single instruction */
@@ -45,6 +46,7 @@ struct bc_ins
 {
     _bc16   ins_type;           /* type of instruction */
     _bc16   ins_len;            /* payload length */
+    _bc_ptr ins_source;         /* pointer to source string */
     _bc8    ins_payload[];      /* payload */
 };
 
@@ -53,10 +55,20 @@ struct bc_ins
 
 struct bc_sym
 {
-    _bc32   sym_pos;            /* location of symbol in file */
+    _bc_ptr sym_pos;            /* location of symbol in file */
     _bc16   sym_len;            /* length of symbol */
     _bc16   sym_flags;          /* symbol flags */
     _bc8    *sym_ptr;           /* pointer to symbol */
+};
+
+/* Every instruction (with debug symbols) should point to a bc_source structure
+   somewhere in the data segment, which in turn provides information about the
+   line number and contents of a line from the original source code. */
+
+struct bc_source
+{
+    _bc32   src_line;           /* line of the source */
+    _bc8    src_data[];         /* the actual string */
 };
 
 /* Universal values */

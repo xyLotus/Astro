@@ -12,8 +12,11 @@
 /* The core header provides some global symbols and structs used almost
    everywhere in the virtual machine source code. */
 
-#define AVM_VERSION     {0, 1, 0}
-#define AVM_COPYRIGHT   "avm 0.1.0 (Astro toolchain)\n" \
+#include <stddef.h>
+
+
+#define AVM_VERSION     {0, 0, 1}
+#define AVM_COPYRIGHT   "avm 0.0.1 (Astro toolchain)\n" \
     "Copyright (C) 2021 bellrise\n\n" \
     "This project is licenced under the GNU Public Licence v3.0\n" \
     "which can be found at <https://gnu.org/licenses/gpl.html>"
@@ -37,3 +40,4 @@ void vm_warn(char *fmt, ...);
 
 
 #endif /* AVM_CORE_H_ */
+

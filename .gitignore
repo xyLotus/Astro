@@ -2,6 +2,7 @@
 .idea
 .vscode
 /compile_flags.txt
+/.ccls-cache
 
 # Python
 __pycache__
