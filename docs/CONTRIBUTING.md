@@ -1,4 +1,5 @@
 # Contributing Guidelines
+Our general expectiations and guidelines for contributing in the Astro project.
 
 ## Behavioral Expectations
 Like written down in the CoC, regardless of age, body size, visible or invisible disability, 
