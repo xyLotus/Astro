@@ -42,7 +42,7 @@ class Tokenizer:
         for i, line in enumerate(self.tokens):
             context_list.append({
                 'line': i + 1,
-                'source': sources[i],
+                'source': sources[i],   
                 'tokens': self.tokens[i]
             })
 
