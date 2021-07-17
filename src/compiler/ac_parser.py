@@ -1,18 +1,52 @@
 """
 The parser.
 """
-import re
-import sys
-from typing import List, Callable, Optional
-
-import avm
+from typing import List, Callable, Optional, Any
 from astro_types import TokenType, Token
+import sys
+import avm
+import re
 
 __author__  = 'bellrise'
 __version__ = '0.1'
 
 if sys.version_info.minor < 5:
     raise RuntimeError('requires Python >= 3.5')
+
+
+class Variable:
+    """Represents a single variable used during compilation that is stored in
+    the 'locals' list in each CodeBlock. A symbol can have a name, an origin
+    flag and possibly a specified type along with a value. """
+
+    ORIGIN_PARAM = 1
+    ORIGIN_LOCAL = 2
+
+    name: str
+    origin: int
+    value: Any
+
+    def __init__(self, name, value, origin):
+        """Create a new variable object. """
+        self.name = name
+        self.value = value
+
+        if origin not in [self.ORIGIN_LOCAL, self.ORIGIN_PARAM]:
+            raise TypeError(f'unknown origin of variable: {name}')
+        self.origin = origin
+
+    def __repr__(self):
+        """Print a variable representation. """
+        return f"<Variable {self.name}, {self.origin} = {self.value}>"
+
+
+class CodeBlock:
+    """Each code block represents a single group, like a function or module.
+    The internal `code` list contains either token contexts, or CodeBlocks
+    which create a tree starting from the main CodeBlock. """
+
+    code = []
+    locals: List[Variable] = []
 
 
 class Parser:
@@ -77,27 +111,41 @@ class Parser:
 
         self.calculate_indents()
 
+        categorized_tokens = []
         for token_ctx in self.tokens:
             tokens = token_ctx['tokens']
             result = self.match(tokens)
             if result is None:
                 self.error(token_ctx, 'invalid syntax')
+            token_ctx['type'] = result
+            categorized_tokens.append(token_ctx)
 
-            for k, v in avm.__dict__.items():
-                if k.startswith('BCO_') and v == result:
-                    print(k)
-                    break
+        tree = self.collect(categorized_tokens)
+
+        # Debug
+        from pprint import pp
+        pp(tree)
 
         return []
 
+    def collect(self, tokens: List[dict]) -> List[CodeBlock]:
+        """Collect all token contexts into CodeBlocks. Uses the 'indent' field
+        provided by calculate_indents to collect statements under functions.
+        Each CodeBlock is a separate function or module that has a name and
+        a scope.
+        :param tokens: list of token contexts
+        """
+        # todo: implement this.
+        pass
+
     def match(self, tokens: List[Token]) -> Optional[int]:
-        """Match a token list to a statement type, and then return that tuple
-        of the type and function to call to parse it. We first fetch only the
-        token IDs and that are not spaces. Then iterate through the signatures
-        using similar to regex rules: if a ellipsis (...) is found in the
-        middle, it skips n tokens until it finds the next type in the signature.
-        If the ellipsis is at the end, it matches anything.
-        :param tokens: list of token types
+        """Match a token list to a statement type, and then return the BCO_
+        opcode of the type to parse it. We first fetch only the token IDs
+        and that are not spaces. Then iterate through the signatures using
+        similar to regex rules: if a ellipsis (...) is found in the middle,
+        it skips n tokens until it finds the next type in the signature. If
+        the ellipsis is at the end, it matches anything.
+        :param tokens: list of token contexts
         :return: token ID or None if not matched
         """
         tokens = [tok.id for tok in tokens if tok.id is not TokenType.SPACE]
