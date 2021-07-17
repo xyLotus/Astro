@@ -25,20 +25,22 @@ class Parser:
 
     possible_checks = []
 
-    signatures = (
-        # ! name ( ... ) :
-        (avm.BCO_FUNCTION, (
+    signatures = {
+        avm.BCO_FUNCTION: (
             TokenType.EXCL, TokenType.NAME, TokenType.LPAREN, ...,
-            TokenType.RPAREN, TokenType.COLON)),
-        # name ( ... )
-        (avm.BCO_CALL, (
+            TokenType.RPAREN, TokenType.COLON
+        ),
+        avm.BCO_CALL: (
             TokenType.NAME, TokenType.LPAREN, ...,
-            TokenType.RPAREN)),
-        # name = ...
-        (avm.BCO_ASSIGN, (TokenType.NAME, TokenType.ASSIGN, ...)),
-        # name ...
-        (avm.BCO_BASECALL, (TokenType.NAME, ...)),
-    )
+            TokenType.RPAREN
+        ),
+        avm.BCO_ASSIGN: (
+            TokenType.NAME, TokenType.ASSIGN, ...
+        ),
+        avm.BCO_BASECALL: (
+            TokenType.NAME, ...
+        )
+    }
 
     def __init__(self, filename: str, tokens: List[dict], trust_me=False):
         """Setup the parser instance. This takes a token list. To actually
@@ -102,12 +104,11 @@ class Parser:
         if not tokens:
             return avm.BCO_NOP
 
-        for _sig in self.signatures:
+        for id_, sig in self.signatures.items():
             # Check each signature for a matching one
-            id_, sig = _sig
             tok_index = 0
 
-            if _sig[1][0] is ...:
+            if sig[0] is ...:
                 raise SyntaxError('invalid signature: cannot start with any')
 
             for sig_index, element in enumerate(sig):
