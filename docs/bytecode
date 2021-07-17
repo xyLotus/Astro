@@ -1,0 +1,141 @@
+Bytecode reference
+==================
+
+This document is the reference for creating Astro bytecode that the official
+virutal machine (and along with that, any other implementation) can read. It
+will provide you with information about the general bytecode format, segments,
+instructions, headers, using the bc.h header and more.
+
+
+Header
+------
+
+Each bytecode file begins with a header (struct bc_hdr) which the virtual
+machine will read for meta information and for pointers to different segments.
+
+``` Part of avm/bc.h
+
+struct __attribute__((packed)) bc_hdr
+{
+    _bc8    hdr_magic[4];       /* magic bytes */
+    _bc32   hdr_version;        /* version */
+    _bc32   hdr_size;           /* sizeof bc_hdr + sizeof hdr_data */
+    _bc32   hdr_flags;          /* header flags */
+    _bc8    hdr_sys;            /* system */
+    _bc8    hdr_endian;         /* file endianness */
+    _bc_ptr hdr_off_data;       /* data segment */
+    _bc_ptr hdr_off_code;       /* code segment */
+    _bc_ptr hdr_off_mut;        /* mutable data segment */
+    _bc_ptr hdr_off_oname;      /* source name */
+    _bc_ptr hdr_off_mname;      /* module name */
+    _bc_ptr hdr_off_func;       /* main function name */
+};
+
+```
+
+As you can see, the header contains some information about the general size of
+the header, some version number and flags along with some other details about
+the file. After the meta information, there are bytecode pointer values
+informing the virtual machine about the location of different segments in the
+file.
+
+
+Segments
+--------
+
+The whole bytecode file is split into single segments, each containing
+a specific type of data, with different permissions and goals.
+
+    +---------------------+
+    | Header              |
+    +---------------------+ - hdr_off_data
+    | Data segment        |
+    |                     |
+    |                     |
+    |                     |
+    +---------------------+ - hdr_off_code
+    | Code segment        |
+    |                     |
+    |                     |
+    |                     |
+    |                     |
+    +---------------------+ - hdr_off_mut
+    | Mutable data        |
+    | segment             |
+    |                     |
+    |                     |
+    |                     |
+    +---------------------+ - hdr_size
+
+The header segment contains meta information (see @Header). The data segment
+contains static data which cannot be modified. Some values in the header point
+to strings in the static data segment, like the file name or the entrypoint
+function name. Apart from meta information, all debug information is located
+like the original source code, split into lines. This is used when unwinding
+the callstack, the original code can be shown instead of just function names,
+which helps the developer read the error.
+
+The code segment contains all the instructions the virtual machine is going to
+execute once called. Usually, the entrypoint "main" function is placed at the
+very start of the code section, which just helps in organization.
+
+The mutable data segment may be used for static arrays or variables of a basic
+type like int, float or char which do not change their size. This way, memory
+is already pre-allocated using mmap without the need of using the heap. This
+feature will not be implemented in a long time though.
+
+
+Instructions
+------------
+
+Usually, the compiler can turn one line of code into one or two instructions.
+For example, when creating a new variable with the type of int you can use
+the CREATE instruction first, to create a new variable in the current scope of
+any given type and then ASSIGN a new value to it.
+
+    +------+------+---------+----------- - -
+    | type | len  | source  | payload
+    +------+------+---------+----------- - -
+
+This is the basic structure of every instruction. The type of the instruction
+is one of BCO_ opcodes, which the virtual machine uses to determine what is
+should do. The length is the length of the payload ( and NOT the whole
+instruction! ). The source is a bytecode pointer to somewhere in the data
+segment where the source of the string is located in a bc_source structure.
+If the provided pointer to source is 0, it will disable the lookup providing
+only a function name when unwinding the call stack for example.
+
+
+Data layout
+-----------
+
+Data needs to be formatted in a perticualar way for the data layout. Usually,
+each piece in built into or starts with a header containing some additional
+info about the data. For example, source code strings are a bc_source struct
+with the line number and source string, which is required to have a null
+terminator so it can be easily passed to a LibC function. With an additional
+level of checks, the length is checked _before_ passing it to a LibC function,
+so it won't result in a segmentation fault. For additional security, your
+compiler should add around n amount of null bytes at the end of the segment
+to align the code segment to a 16 byte boundry.
+
+Normal strings, like the entrypoint name or the original file name are just
+C-strings pointed to by a _bc_ptr in the header.
+
+
+Using avm/bc.h
+--------------
+
+The bytecode header, or just bc.h provides a simple interface and several types
+and structs for operating on bytecode. All structs are built using only 4 basic
+types: _bc8, _bc16, _bc32 and a special _bc_ptr. The first 3 are unsigned ints
+of the given bit width. The "bytecode pointer" is also just an unsigned 32-bit
+integer which can point somewhere in the file.
+
+Each symbol in the header starts with a lower/upper case variation of "bc" or
+"_bc". This helps alleviate name clashing.
+
+For Python programs, an avm.py module is provided with not only the bc.h values
+but also other useful definitions from other headers. It is updated at the same
+time as the headers update, so be sure to keep the newest version.
+

@@ -1,0 +1,70 @@
+#!/bin/sh
+
+# I got bored of trying to make the Makefile work, so I'm just using
+# a shell script now.
+
+CC='clang'
+CFLAGS='-Wall -Wextra -Wno-unused-parameter -fsanitize=address'
+INCLUDE='-Iinclude'
+RESULT='avm'
+
+_build()
+{
+    mkdir -p build/objects
+    echo Building using $($CC --version | head -n 1)
+
+    # Compile
+    local sources=$(find src -name '*.c' -printf '%p ')
+    for source in $sources; do
+        local dest=$(echo $source | sed 's/src\///')
+        $CC $CFLAGS $INCLUDE -c -o build/objects/$dest.o $source
+    done
+
+    # Link
+    local objects=$(find build/objects -name '*.o' -printf '%p ')
+    $CC $CFLAGS -o build/$RESULT $objects
+
+    echo Done
+}
+
+_install()
+{
+    # Install in /usr/bin
+    [ ! -e "build/$RESULT" ] && echo 'Binary is not compiled.' && exit
+    sudo cp build/$RESULT /usr/bin/$RESULT
+}
+
+_clean()
+{
+    rm -rf build
+    sudo rm -rf /usr/bin/$RESULT
+}
+
+_usage()
+{
+    cat <<\EOF
+usage: compile [action]
+Compile the virtual machine.
+
+  build     build all source files into an executable
+  clean     remove the build directory
+  install   install the binary
+
+avm (Astro toolchain)
+Copyright (C) 2021 bellrise
+EOF
+}
+
+[ -z "$1" ] && echo "No action provided." && exit
+
+case $1 in
+    build) _build       ;;
+    clean) _clean       ;;
+    install) _install   ;;
+    help*) _usage       ;;
+    *)
+        echo "Unknown action '$1'."
+        _usage
+    ;;
+esac
+

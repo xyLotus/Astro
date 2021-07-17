@@ -2,6 +2,7 @@
 .idea
 .vscode
 /compile_flags.txt
+/.ccls-cache
 
 # Python
 __pycache__
@@ -9,3 +10,6 @@ __pycache__
 # Astro source code, but not the test sources
 /src/**/*.asx
 !/src/compiler/test_sources/**
+
+# Virtual machine stuff
+/src/avm/build

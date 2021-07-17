@@ -1,0 +1,24 @@
+The Astro virtual machine
+=========================
+
+This is the official implementation of an Astro virtual machine, written in C.
+Maintained by @bellrise, all changes that may break something need to be
+reviewed beforehand.
+
+It is designed to function on Linux and Windows systems, although the Linux
+version may have less bugs and is generally faster. The project files are split
+into 3 main sections: the src directory where all the .c files live, the
+include/avm directory where all the headers live and the rest, like build
+scripts or this readme.
+
+When contributing, you must abide all these rules:
+
+  - Keep the style the same as the code around you
+  - Everything must be in English
+  - Each source code file must contain the copyright header
+  - Don't step on other people's toes - make your own branch
+  - When changing something in an existing file, add your name to the header
+  - Keep the same format of commit messages (`avm/subject: change`)
+
+Code style rules can be found in src/main.c, in the top comment.
+
