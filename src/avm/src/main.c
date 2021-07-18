@@ -50,6 +50,7 @@
  * tl;dr: Your code should be clean and readable, with meaningful names and
  * expressive comments (which must be kept up to date!). Have fun coding! :-)
  */
+#include <avm/module.h>
 #include <avm/core.h>
 #include <stdio.h>
 
@@ -57,5 +58,12 @@
 int main(int argc, char **argv)
 {
     struct args args = args_parse(--argc, ++argv);
+
+    struct module module = {0};
+    int err = module_load(&module, args.arg_filename, 0);
+    if (err)
+        vm_error("%s", ec_as_string(err));
+
+    module_unload(&module);
 }
 

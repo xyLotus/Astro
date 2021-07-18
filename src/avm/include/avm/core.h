@@ -21,6 +21,18 @@
     "This project is licenced under the GNU Public Licence v3.0\n" \
     "which can be found at <https://gnu.org/licenses/gpl.html>"
 
+/* Error codes */
+
+#define EC_OK       0       /* everything is fine */
+#define EC_PERM     1       /* operation not permitted */
+#define EC_FEXIST   2       /* file/directory doesn't exit */
+#define EC_FFILE    3       /* is a file */
+#define EC_FDIR     4       /* is a directory */
+#define EC_MMAPF    5       /* failed to mmap a file */
+#define EC_MMAPM    6       /* failed to mmap memory */
+
+/* Get a string representation of the error for it to be printed. */
+const char *ec_as_string(int err);
 
 /* Result from the argument parser (args_parse function). */
 struct args

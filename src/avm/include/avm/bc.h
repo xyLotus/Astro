@@ -18,7 +18,7 @@ typedef unsigned int    _bc32;
 typedef unsigned int    _bc_ptr;
 
 #define BC_VERSION  1
-#define BC_MAGIC    "\x5aABC"
+#define BC_MAGIC    "<ABC"
 
 /* Bytecode header. This is located at the beginning of every compiled bytecode
    file containing useful meta information about the file. The strings with
