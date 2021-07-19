@@ -12,7 +12,8 @@
 const char *avm_strerror(int err)
 {
     static const char *errors[] = {
-        "everything is fine",
+        "?",
+        "?",
         "action is not permitted",
         "file/directory does not exist",
         "is a file",

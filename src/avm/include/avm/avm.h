@@ -15,11 +15,12 @@
  */
 
 #include <stddef.h>
+#include <stdlib.h>
 
 /* Version */
 
-#define AVM_VERSION     {0, 0, 2}
-#define AVM_COPYRIGHT   "avm 0.0.2 (Astro toolchain)\n" \
+#define AVM_VERSION     {0, 0, 3}
+#define AVM_COPYRIGHT   "avm 0.0.3 (Astro toolchain)\n" \
     "Copyright (C) 2021 bellrise\n\n" \
     "This project is licenced under the GNU Public Licence v3.0\n" \
     "which can be found at <https://gnu.org/licenses/gpl.html>"
@@ -27,15 +28,26 @@
 /* Error codes */
 
 #define EC_OK       0       /* everything is fine */
-#define EC_PERM     1       /* operation not permitted */
-#define EC_FEXIST   2       /* file/directory doesn't exit */
-#define EC_FFILE    3       /* is a file */
-#define EC_FDIR     4       /* is a directory */
-#define EC_MMAPF    5       /* failed to mmap a file */
-#define EC_MMAPM    6       /* failed to mmap memory */
+#define EC_TRUE     1       /* a true value */
+#define EC_PERM     2       /* operation not permitted */
+#define EC_FEXIST   3       /* file/directory doesn't exit */
+#define EC_FFILE    4       /* is a file */
+#define EC_FDIR     5       /* is a directory */
+#define EC_MMAPF    6       /* failed to mmap a file */
+#define EC_MMAPM    7       /* failed to mmap memory */
 
 /* Get a string representation of the error for it to be printed. */
 const char *avm_strerror(int err);
+
+#define AVM_DIE()                                                           \
+{                                                                           \
+    printf(                                                                 \
+        "\nOops, something went really wrong and the virtual machine is\n"  \
+        "not able to recover. This error happened in %s on line %d\n",      \
+        __FILE__, __LINE__                                                  \
+    );                                                                      \
+    exit(1);                                                                \
+}
 
 /* Result from the argument parser (args_parse function). */
 struct args

@@ -14,22 +14,25 @@
  * functions for handling the struct.
  */
 
+#include <avm/object.h>
 #include <avm/bc.h>
 
 
 struct module
 {
-    char              *m_name;      /* name of the module */
-    unsigned int      m_nsyms;      /* amount of symbols */
-    struct bc_sym     *m_syms;      /* symbols */
-    unsigned int      m_flags;      /* module flags */
-    unsigned int      m_size;       /* size of the code */
-    union {
-        struct bc_hdr *m_header;    /* bytecode header */
-        char          *m_code;      /* bytecode */
+    char               *m_name;     /* name of the module */
+    unsigned int       m_nsyms;     /* amount of symbols */
+    struct bc_sym      *m_syms;     /* symbols */
+    unsigned int       m_flags;     /* module flags */
+    unsigned int       m_size;      /* size of the code */
+
+    union
+    {
+        struct bc_hdr  *m_header;   /* bytecode header */
+        char           *m_code;     /* bytecode */
     };
 
-    /* todo: m_locals */
+    struct object_list m_locals;    /* locals */
 };
 
 /* Load a module into memory, from the passed path. The bytecode is mapped into

@@ -50,6 +50,7 @@
  * tl;dr: Your code should be clean and readable, with meaningful names and
  * expressive comments (which must be kept up to date!). Have fun coding! :-)
  */
+#include <avm/object.h>
 #include <avm/module.h>
 #include <avm/avm.h>
 #include <stdio.h>
