@@ -6,11 +6,13 @@
  * This file is licenced under the GNU Public Licence v3.0 which can be found
  * at the root of this project found at <https://github.com/xyLotus/Astro>.
  */
-#ifndef AVM_MODULE_H_
-#define AVM_MODULE_H_
+#ifndef AVM_MODULE_H
+#define AVM_MODULE_H
 
-/* The module struct and most of it's requirements, along with a couple of
-   functions for handling the struct. */
+/*
+ * The module struct and most of its requirements, along with a couple of
+ * functions for handling the struct.
+ */
 
 #include <avm/bc.h>
 
@@ -26,6 +28,8 @@ struct module
         struct bc_hdr *m_header;    /* bytecode header */
         char          *m_code;      /* bytecode */
     };
+
+    /* todo: m_locals */
 };
 
 /* Load a module into memory, from the passed path. The bytecode is mapped into
@@ -37,5 +41,4 @@ int module_load(struct module *module, char *path, int flags);
 int module_unload(struct module *module);
 
 
-#endif /* AVM_module_H_ */
-
+#endif /* AVM_MODULE_H */

@@ -6,7 +6,7 @@
  * This file is licenced under the GNU Public Licence v3.0 which can be found
  * at the root of this project found at <https://github.com/xyLotus/Astro>.
  */
-#include <avm/core.h>
+#include <avm/avm.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,30 +15,42 @@
 struct option
 {
     const char *name;
-    void (*action) (int *, const int, const char **, struct args *);
+    void (*action) (void);
 };
 
-static void parse_short(int *pos, const int argc, const char **argv,
-        struct args *args);
-static void parse_long(int *pos, const int argc, const char **argv,
-        struct args *args);
+/* Functions */
 
-static void action_usage(int *, const int, const char **, struct args *);
-static void action_version(int *, const int, const char **, struct args *);
-static void action_args(int *, const int, const char **, struct args *);
+static void parse_short();
+static void parse_long();
+static void action_usage();
+static void action_version();
+static void action_args();
 
+/* Globals, used for parsing */
 
-struct args args_parse(int argc, char **argv)
+static int         *glob_pos;
+static int         glob_argc;
+static char        **glob_argv;
+static struct args *glob_args;
+
+/* Main args_parse function */
+
+struct args avm_argparse(int argc, char **argv)
 {
     struct args args = {0};
 
     for (int i = 0; i < argc; i++) {
 
+        glob_pos = &i;
+        glob_argc = argc;
+        glob_argv = argv;
+        glob_args = &args;
+
         if (argv[i][0] == '-') {
             if (argv[i][1] == '-')
-                parse_long(&i, (const int) argc, (const char **) argv, &args);
+                parse_long();
             else
-                parse_short(&i, (const int) argc, (const char **) argv, &args);
+                parse_short();
 
             continue;
         }
@@ -47,16 +59,15 @@ struct args args_parse(int argc, char **argv)
     }
 
     if (!args.arg_filename)
-        vm_error("no input file");
+        avm_error("no input file");
 
     return args;
 }
 
-static void parse_short(int *pos, const int argc, const char **argv,
-        struct args *args)
+static void parse_short()
 {
-    if (strlen(argv[*pos]) < 2)
-        vm_error("empty argument '%s'", argv[*pos]);
+    if (strlen(glob_argv[*glob_pos]) < 2)
+        avm_error("empty argument '%s'", glob_argv[*glob_pos]);
 
     static const struct option actions[] = {
         {"h", action_usage},
@@ -67,20 +78,19 @@ static void parse_short(int *pos, const int argc, const char **argv,
     static const size_t actions_s = sizeof(actions) / sizeof(struct option);
 
     for (size_t i = 0; i < actions_s; i++) {
-        if (actions[i].name[0] == argv[*pos][1]) {
-            actions[i].action(pos, argc, argv, args);
+        if (actions[i].name[0] == glob_argv[*glob_pos][1]) {
+            actions[i].action();
             return;
         }
     }
 
-    vm_warn("unknown option '%s'", argv[*pos]);
+    avm_warn("unknown option '%s'", glob_argv[*glob_pos]);
 }
 
-static void parse_long(int *pos, const int argc, const char **argv,
-        struct args *args)
+static void parse_long()
 {
-    if (strlen(argv[*pos]) < 3)
-        vm_error("empty argument '%s'", argv[*pos]);
+    if (strlen(glob_argv[*glob_pos]) < 3)
+        avm_error("empty argument '%s'", glob_argv[*glob_pos]);
 
     static const struct option actions[] = {
         {"help", action_usage},
@@ -91,17 +101,16 @@ static void parse_long(int *pos, const int argc, const char **argv,
     static const size_t actions_s = sizeof(actions) / sizeof(struct option);
 
     for (size_t i = 0; i < actions_s; i++) {
-        if (strcmp(actions[i].name, argv[*pos] + 2) == 0) {
-            actions[i].action(pos, argc, argv, args);
+        if (strcmp(actions[i].name, glob_argv[*glob_pos] + 2) == 0) {
+            actions[i].action();
             return;
         }
     }
 
-    vm_warn("unknown argument '%s'", argv[*pos]);
+    avm_warn("unknown argument '%s'", glob_argv[*glob_pos]);
 }
 
-static void action_usage(int *pos, const int argc, const char **argv,
-        struct args *args)
+static void action_usage()
 {
     printf(
         "usage: avm [option] ... file\n"
@@ -118,20 +127,17 @@ static void action_usage(int *pos, const int argc, const char **argv,
     exit(0);
 }
 
-static void action_version(int *pos, const int argc, const char **argv,
-        struct args *args)
+static void action_version()
 {
     printf("%s\n", AVM_COPYRIGHT);
     exit(0);
 }
 
-static void action_args(int *pos, const int argc, const char **argv,
-        struct args *args)
+static void action_args()
 {
-    if (*pos + 1 == argc)
-        vm_error("no arguments passed to --args");
+    if (*glob_pos + 1 == glob_argc)
+        avm_error("no arguments passed to --args");
 
-    args->arg_args = (char *) argv[*pos + 1];
-    (*pos)++;
+    glob_args->arg_args = (char *) glob_argv[*glob_pos + 1];
+    (*glob_pos)++;
 }
-

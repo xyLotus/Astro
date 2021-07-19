@@ -7,7 +7,7 @@
  * at the root of this project found at <https://github.com/xyLotus/Astro>.
  */
 #include <avm/module.h>
-#include <avm/core.h>
+#include <avm/avm.h>
 #include <string.h>
 
 #if __linux__
@@ -85,4 +85,3 @@ int module_unload(struct module *module)
 
     return 0;
 }
-
