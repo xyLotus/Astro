@@ -25,6 +25,7 @@ static void parse_long();
 static void action_usage();
 static void action_version();
 static void action_args();
+static void action_debug();
 
 /* Globals, used for parsing */
 
@@ -55,10 +56,10 @@ struct args avm_argparse(int argc, char **argv)
             continue;
         }
         else
-            args.arg_filename = argv[i];
+            args.a_filename = argv[i];
     }
 
-    if (!args.arg_filename)
+    if (!args.a_filename)
         avm_error("no input file");
 
     return args;
@@ -72,7 +73,8 @@ static void parse_short()
     static const struct option actions[] = {
         {"h", action_usage},
         {"v", action_version},
-        {"a", action_args}
+        {"a", action_args},
+        {"d", action_debug},
     };
 
     static const size_t actions_s = sizeof(actions) / sizeof(struct option);
@@ -95,7 +97,8 @@ static void parse_long()
     static const struct option actions[] = {
         {"help", action_usage},
         {"version", action_version},
-        {"args", action_args}
+        {"args", action_args},
+        {"debug", action_debug},
     };
 
     static const size_t actions_s = sizeof(actions) / sizeof(struct option);
@@ -118,7 +121,8 @@ static void action_usage()
         "  file                 name of the file\n"
         "  -a, --args [args]    program arguments\n"
         "  -h, --help           show this page and exit\n"
-        "  -v, --version        show the current version and exit\n\n"
+        "  -v, --version        show the current version and exit\n"
+        "  -d, --debug          enable vm debug features\n\n"
         "Only the last filename will be taken into consideration, any other "
         "path will \nbe skipped. The [args] option is a single string that is "
         "then internally \nsplit and passed to the Astro code as the global "
@@ -138,6 +142,11 @@ static void action_args()
     if (*glob_pos + 1 == glob_argc)
         avm_error("no arguments passed to --args");
 
-    glob_args->arg_args = (char *) glob_argv[*glob_pos + 1];
+    glob_args->a_args = (char *) glob_argv[*glob_pos + 1];
     (*glob_pos)++;
+}
+
+static void action_debug()
+{
+    glob_args->a_debug = 1;
 }

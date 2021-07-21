@@ -19,8 +19,8 @@
 
 /* Version */
 
-#define AVM_VERSION     {0, 0, 3}
-#define AVM_COPYRIGHT   "avm 0.0.3 (Astro toolchain)\n" \
+#define AVM_VERSION     {0, 0, 4}
+#define AVM_COPYRIGHT   "avm 0.0.4 (Astro toolchain)\n" \
     "Copyright (C) 2021 bellrise\n\n" \
     "This project is licenced under the GNU Public Licence v3.0\n" \
     "which can be found at <https://gnu.org/licenses/gpl.html>"
@@ -35,6 +35,7 @@
 #define EC_FDIR     5       /* is a directory */
 #define EC_MMAPF    6       /* failed to mmap a file */
 #define EC_MMAPM    7       /* failed to mmap memory */
+#define EC_HDRSIZE  8       /* invalid header size */
 
 /* Get a string representation of the error for it to be printed. */
 const char *avm_strerror(int err);
@@ -49,12 +50,29 @@ const char *avm_strerror(int err);
     exit(1);                                                                \
 }
 
+/* Utility macros */
+
+#define AVM_DTOR_STATIC(OBJECT) \
+    ((struct object *) &OBJECT)->o_dtor((struct object *) &OBJECT)
+#define AVM_DTOR(OBJECT) \
+    ((struct object *) OBJECT)->o_dtor((struct object *) OBJECT)
+#define AVM_DUMP(OBJECT) \
+    ((struct object *) OBJECT)->o_dump((struct object *) OBJECT)
+
 /* Result from the argument parser (args_parse function). */
 struct args
 {
-    char    *arg_filename;
-    char    *arg_args;
+    char    *a_filename;
+    char    *a_args;
+    int     a_debug;
 };
+
+/* Global runtime instance */
+struct runtime
+{
+    struct args *args;
+};
+extern struct runtime _avm_runtime_;
 
 /* Parse the given arguments (without the executable name) and create an args
    struct based on them. This function may exit the program, if some error
