@@ -19,7 +19,8 @@ const char *avm_strerror(int err)
         "is a file",
         "is a directory",
         "failed to map a file into memory",
-        "failed to map new memory"
+        "failed to map new memory",
+        "invalid header size",
     };
 
     static const int size = sizeof(errors) / sizeof(char *);

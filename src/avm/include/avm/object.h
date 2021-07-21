@@ -11,8 +11,10 @@
 
 /* Object struct and its interface */
 
-#define OBJECT_USED     1
-#define OBJECT_FREED    2
+#define AO_CLEAN        0
+#define AO_ALLOC        1
+#define AO_MAPPED       2
+#define AO_LOADED       4
 
 /*
  * Objects are structures allocated on a custom heap managed just for them, to
@@ -50,6 +52,9 @@ struct object
     /* Return 0 or 1 depending on the "boolean" value of the object. This is
        used in if statements. */
     int (*o_bool) (struct object *self);
+
+    /* Dump the whole object to standard out, but only if debug mode is on. */
+    int (*o_dump) (struct object *self);
 };
 
 struct object_list
@@ -69,6 +74,9 @@ struct object_map /* FAR FROM IMPLEMENTATION, DO NOT USE */
 
 /* Create a new object on the heap. */
 struct object *object_new(char *name);
+
+int _obj_default_dtor(struct object *self);
+int _obj_default_dump(struct object *self);
 
 
 #endif /* AVM_OBJECT_H */

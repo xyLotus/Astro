@@ -23,7 +23,7 @@ struct object *object_new(char *name)
    which points to a custom struct. When building a custom constructor, any
    free'd pointer must be zeroed, or else the default destructor will throw
    a fatal error about a dangling pointer. */
-int _o_default_dtor(struct object *self)
+int _obj_default_dtor(struct object *self)
 {
     /*
      * We do not want danling pointers to unfreed memory on the standard heap,
@@ -36,5 +36,13 @@ int _o_default_dtor(struct object *self)
     free(self->o_name);
     memset(self, 0, sizeof(struct object));
 
+    return EC_OK;
+}
+
+int _obj_default_dump(struct object *self)
+{
+    if (_avm_runtime_.args->a_debug)
+        printf("[Object '%s' %p of type %u]\n", self->o_name, self,
+                self->o_type);
     return EC_OK;
 }

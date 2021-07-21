@@ -17,13 +17,22 @@
 #include <avm/object.h>
 #include <avm/bc.h>
 
+/*
+ * The module struct inherits from the object structure, so it can also be re-
+ * -presented using a simple `print` instruction for example. Because it is
+ * built with the object struct at the beginning, it can be placed on the
+ * custom object heap along with other objects. Internally, a module behaves
+ * like a regular object with a couple of special methods along with it.
+ *
+ * To properly manage a module, it has to be de-allocated using the o_dtor
+ * function from the header.
+ */
 
 struct module
 {
-    char               *m_name;     /* name of the module */
+    struct object      _self;
     unsigned int       m_nsyms;     /* amount of symbols */
     struct bc_sym      *m_syms;     /* symbols */
-    unsigned int       m_flags;     /* module flags */
     unsigned int       m_size;      /* size of the code */
 
     union
@@ -37,11 +46,9 @@ struct module
 
 /* Load a module into memory, from the passed path. The bytecode is mapped into
    memory, using mmap() if possible, which will m_code point to. After loading
-   the code into memory, the header is validated and symbols are mapped. */
+   the code into memory, the header is validated and symbols are mapped. The
+   opposite of this function is the _self.o_dtor function. */
 int module_load(struct module *module, char *path, int flags);
-
-/* Unload the module from memory, free'ing all it's used resources. */
-int module_unload(struct module *module);
 
 
 #endif /* AVM_MODULE_H */

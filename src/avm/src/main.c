@@ -59,11 +59,13 @@
 int main(int argc, char **argv)
 {
     struct args args = avm_argparse(--argc, ++argv);
+    _avm_runtime_.args = &args;
 
     struct module module = {0};
-    int err = module_load(&module, args.arg_filename, 0);
+    int err = module_load(&module, args.a_filename, 0);
     if (err)
         avm_error("%s", avm_strerror(err));
 
-    module_unload(&module);
+    AVM_DUMP(&module);
+    AVM_DTOR(&module);
 }
