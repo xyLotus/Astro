@@ -37,7 +37,7 @@
  * fields. The project uses C11, for functionality like _Generic macro func-
  * -tions (as a side note, this can be checked if __STDC_VERSION__ >= 201112L).
  *
- * Headers should define header guards in this fashion: AVM_[PATH]_H_, and
+ * Headers should define header guards in this fashion: AVM_[PATH]_H, and
  * should all have a copyright header, which can be just stolen from here (the
  * copyright header part is the first 7 lines). Includes should form a cool
  * little pyramid, with the longest path as the first, and have 2 newlines
@@ -50,20 +50,22 @@
  * tl;dr: Your code should be clean and readable, with meaningful names and
  * expressive comments (which must be kept up to date!). Have fun coding! :-)
  */
+#include <avm/object.h>
 #include <avm/module.h>
-#include <avm/core.h>
+#include <avm/avm.h>
 #include <stdio.h>
 
 
 int main(int argc, char **argv)
 {
-    struct args args = args_parse(--argc, ++argv);
+    struct args args = avm_argparse(argc, argv);
+    _avm_runtime_.args = &args;
 
     struct module module = {0};
-    int err = module_load(&module, args.arg_filename, 0);
+    int err = module_load(&module, args.a_filename, 0);
     if (err)
-        vm_error("%s", ec_as_string(err));
+        avm_error("%s", avm_strerror(err));
 
-    module_unload(&module);
+    AVM_DUMP(&module);
+    AVM_DTOR(&module);
 }
-

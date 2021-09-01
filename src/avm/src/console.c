@@ -6,13 +6,13 @@
  * This file is licenced under the GNU Public Licence v3.0 which can be found
  * at the root of this project found at <https://github.com/xyLotus/Astro>.
  */
-#include <avm/core.h>
+#include <avm/avm.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 
-void vm_error(char *fmt, ...)
+void avm_error(char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -25,7 +25,7 @@ void vm_error(char *fmt, ...)
     exit(1);
 }
 
-void vm_warn(char *fmt, ...)
+void avm_warn(char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -37,3 +37,10 @@ void vm_warn(char *fmt, ...)
     va_end(args);
 }
 
+int avm_hexdump(void *ptr, size_t bytes)
+{
+    for (size_t i = 0; i < bytes; i++)
+        printf("%02hhx\n", ((char *) ptr)[i]);
+
+    return 0;
+}

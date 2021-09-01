@@ -6,20 +6,21 @@
  * This file is licenced under the GNU Public Licence v3.0 which can be found
  * at the root of this project found at <https://github.com/xyLotus/Astro>.
  */
-#include <avm/core.h>
-#include <errno.h>
+#include <avm/avm.h>
 
 
-const char *ec_as_string(int err)
+const char *avm_strerror(int err)
 {
     static const char *errors[] = {
-        "everything is fine",
+        "?",
+        "?",
         "action is not permitted",
         "file/directory does not exist",
         "is a file",
         "is a directory",
         "failed to map a file into memory",
-        "failed to map new memory"
+        "failed to map new memory",
+        "invalid header size",
     };
 
     static const int size = sizeof(errors) / sizeof(char *);
@@ -29,4 +30,3 @@ const char *ec_as_string(int err)
 
     return errors[err];
 }
-
