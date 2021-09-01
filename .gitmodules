@@ -1,0 +1,3 @@
+[submodule "src/avm/vendor/fastargs"]
+	path = src/avm/vendor/fastargs
+	url = git@github.com:bellrise/fastargs

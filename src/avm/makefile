@@ -7,6 +7,11 @@
 include out/target.mk
 
 
+# Vendor dependencies
+
+DEPS := ./vendor/fastargs/out/libfastargs.a
+
+
 # First, run the setup target to generate any required directories or files,
 # and then compile all the sources.
 
@@ -18,7 +23,7 @@ clean:
 
 
 link:
-	$(CC) $(CFLAGS) -o $(RESULT) $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(RESULT) $(OBJECTS) $(DEPS)
 
 
 install:
