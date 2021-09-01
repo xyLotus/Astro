@@ -12,4 +12,4 @@ __pycache__
 !/src/compiler/test_sources/**
 
 # Virtual machine stuff
-/src/avm/build
+/src/avm/out
