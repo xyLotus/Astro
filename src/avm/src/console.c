@@ -36,3 +36,11 @@ void avm_warn(char *fmt, ...)
 
     va_end(args);
 }
+
+int avm_hexdump(void *ptr, size_t bytes)
+{
+    for (size_t i = 0; i < bytes; i++)
+        printf("%02hhx\n", ((char *) ptr)[i]);
+
+    return 0;
+}

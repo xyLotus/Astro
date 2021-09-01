@@ -23,7 +23,8 @@ clean:
 
 
 link:
-	$(CC) $(CFLAGS) -o $(RESULT) $(OBJECTS) $(DEPS)
+	@ # This line is always the same so there is no need to echo it.
+	@ $(CC) $(CFLAGS) -o $(RESULT) $(OBJECTS) $(DEPS)
 
 
 install:

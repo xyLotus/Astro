@@ -58,7 +58,7 @@
 
 int main(int argc, char **argv)
 {
-    struct args args = avm_argparse(--argc, ++argv);
+    struct args args = avm_argparse(argc, argv);
     _avm_runtime_.args = &args;
 
     struct module module = {0};
