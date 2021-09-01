@@ -17,6 +17,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+
+/* Utility attributes */
+
+#define _Unused     __attribute__((unused))
+
+
 /* Version */
 
 #define AVM_VERSION     {0, 0, 4}
@@ -24,6 +30,7 @@
     "Copyright (C) 2021 bellrise\n\n" \
     "This project is licenced under the GNU Public Licence v3.0\n" \
     "which can be found at <https://gnu.org/licenses/gpl.html>"
+
 
 /* Error codes */
 
@@ -37,18 +44,16 @@
 #define EC_MMAPM    7       /* failed to mmap memory */
 #define EC_HDRSIZE  8       /* invalid header size */
 
-/* Get a string representation of the error for it to be printed. */
-const char *avm_strerror(int err);
-
 #define AVM_DIE()                                                           \
 {                                                                           \
     printf(                                                                 \
-        "\nOops, something went really wrong and the virtual machine is\n"  \
-        "not able to recover. This error happened in %s on line %d\n",      \
+        "\nOops :(\n\nSomething went really wrong and the virtual machine " \
+        "is not able\nto recover. This error happened in %s on line %d\n",  \
         __FILE__, __LINE__                                                  \
     );                                                                      \
-    exit(1);                                                                \
+    abort();                                                                \
 }
+
 
 /* Utility macros */
 
@@ -58,6 +63,11 @@ const char *avm_strerror(int err);
     ((struct object *) OBJECT)->o_dtor((struct object *) OBJECT)
 #define AVM_DUMP(OBJECT) \
     ((struct object *) OBJECT)->o_dump((struct object *) OBJECT)
+
+
+/* Get a string representation of the error for it to be printed. */
+const char *avm_strerror(int err);
+
 
 /* Result from the argument parser (args_parse function). */
 struct args
@@ -83,6 +93,9 @@ struct args avm_argparse(int argc, char **argv);
    runs any possible clean up routines before exiting with exit code 1. */
 void avm_error(char *fmt, ...);
 void avm_warn(char *fmt, ...);
+
+/* Print n bytes to stdout in hex format, without a newline. */
+int avm_hexdump(void *ptr, size_t bytes);
 
 
 #endif /* AVM_H */

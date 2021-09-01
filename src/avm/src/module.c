@@ -74,7 +74,8 @@ int module_load(struct module *module, char *path, int flags)
     fclose(fp);
 #endif
 
-    module->_self.o_name = PTR_ADD(module, module->m_header->hdr_off_mname);
+    module->_self.o_name = PTR_ADD(module->m_code,
+        module->m_header->hdr_off_mname);
     module->m_nsyms = 0;
     module->m_syms = NULL;
     /* todo: Map symbols */
